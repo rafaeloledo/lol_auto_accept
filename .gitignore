@@ -24,3 +24,5 @@
 [Ll]ogs/
 
 .vs/
+
+*.csproj

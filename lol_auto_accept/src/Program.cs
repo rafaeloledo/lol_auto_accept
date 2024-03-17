@@ -8,8 +8,11 @@ namespace lol_auto_accept
 {
   internal class Program
   {
-    static void Main(string[] args)
+    private static void Main(string[] args)
     {
+      var parentProcess = ParentProcessUtil.getParentProcess();
+      Console.WriteLine(parentProcess.Id);
+      Console.WriteLine(parentProcess.ProcessName);
     }
   }
 }
