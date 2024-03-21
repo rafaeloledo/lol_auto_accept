@@ -1,4 +1,5 @@
-﻿using System;
+﻿using lol_auto_accept.src;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -15,7 +16,7 @@ namespace lol_auto_accept
       var parentProcess = ParentProcessUtil.getParentProcess();
       var isDebugMode = Debugger.IsAttached;
 
-      if (parentProcess.ProcessName != "conhost")
+      if (!isDebugMode && parentProcess.ProcessName != "conhost")
       {
         Process.Start(new ProcessStartInfo
         {
@@ -26,6 +27,8 @@ namespace lol_auto_accept
       }
 
       Console.Title = "LOL Auto Accept";
+
+      LeagueClientUx.isOpenTask();
 
       Console.ReadKey();
     }
