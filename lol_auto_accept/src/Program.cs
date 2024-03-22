@@ -27,8 +27,7 @@ namespace lol_auto_accept
       }
 
       Console.Title = "LOL Auto Accept";
-
-      LeagueClientUx.isOpenTask();
+      LeagueClientUpdate.isOpenTask();
 
       Console.ReadKey();
     }
