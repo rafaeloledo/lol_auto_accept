@@ -81,7 +81,7 @@ namespace lol_auto_accept.src
         using (HttpClient client = new HttpClient(handler))
         {
           client.BaseAddress = new Uri("https://127.0.0.1:" + leagueAuth[1] + "/");
-          client.DefaultRequestHeaders.Authorization= new AuthenticationHeaderValue("Basic", leagueAuth[0]);
+          client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", leagueAuth[0]);
 
           HttpRequestMessage request = new HttpRequestMessage(new HttpMethod(method), url);
 
@@ -96,13 +96,14 @@ namespace lol_auto_accept.src
             return new string[] { "999", "" };
           }
 
-          int statusCode = (int)response.StatusCode;
-          string statusString = statusCode.ToString();
-
-          string responseFromServer = response.Content.ReadAsStringAsync().Result;
+          string[] output = new string[] {
+            response.StatusCode.ToString(),
+            response.Content.ReadAsStringAsync().Result
+          };
 
           response.Dispose();
-          return new string[] { statusString, responseFromServer };
+
+          return output;
         }
       } catch
       {
