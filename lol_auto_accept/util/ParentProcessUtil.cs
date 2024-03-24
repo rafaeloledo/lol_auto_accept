@@ -29,11 +29,9 @@ public struct ParentProcessUtil {
     ParentProcessUtil ppu = new ParentProcessUtil();
 
     int o_Length;
-
     int status = NtQueryInformationProcess(handle, 0, ref ppu, Marshal.SizeOf(ppu), out o_Length);
 
-    if (status != 0)
-      throw new Win32Exception();
+    if (status != 0) throw new Win32Exception();
 
     try {
       return Process.GetProcessById(ppu.InheritedFromUniqueProcessId.ToInt32());

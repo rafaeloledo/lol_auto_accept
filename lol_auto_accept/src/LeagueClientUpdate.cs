@@ -11,7 +11,6 @@ namespace lol_auto_accept.src {
   internal class LeagueClientUpdate {
     private static string[] leagueAuth;
     private static int lcuPid = 0;
-
     public static bool isLolOpen = false;
 
     public static void isOpenTask() {
@@ -27,7 +26,7 @@ namespace lol_auto_accept.src {
           isLolOpen = false;
         }
         Thread.Sleep(2000);
-        Data.loadChatId();
+        Data.loadSummonerId();
       }
     }
 
@@ -91,18 +90,17 @@ namespace lol_auto_accept.src {
       } catch {
         return new string[] { "999", "" };
       }
-
     }
 
     public static string[] clientRequestUntilSuccess(string method, string url, string body = null) {
-      string[] request = { "000", "" };
+      string[] response = { "000", "" };
 
-      while (request[0][0] != '2') {
-        request = clientRequest(method, url, body);
+      while (response[0][0] != '2' && response[0] != "OK") {
+        response = clientRequest(method, url, body);
         if (isLeagueClientOpen()) Thread.Sleep(1000);
       };
 
-      return request;
+      return response;
     }
   }
 }
