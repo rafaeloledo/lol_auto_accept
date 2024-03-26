@@ -14,7 +14,7 @@ namespace lol_auto_accept.src {
     public static bool isLolOpen = false;
 
     public static void isOpenTask() {
-      while (true) {
+      //while (true) {
         Process client = Process.GetProcessesByName("LeagueClientUx").FirstOrDefault();
         if (client != null) {
           leagueAuth = getLeagueAuth(client);
@@ -26,8 +26,8 @@ namespace lol_auto_accept.src {
           isLolOpen = false;
         }
         Thread.Sleep(2000);
-        Data.loadSummonerId();
-      }
+        Data.loadChampionsList();
+      //}
     }
 
     public static bool isLeagueClientOpen() {
@@ -91,6 +91,12 @@ namespace lol_auto_accept.src {
         return new string[] { "999", "" };
       }
     }
+
+    /**
+     * <summary>
+     * Returns an string[], first item is the response status, the second is the content
+     * </summary>
+     */
 
     public static string[] clientRequestUntilSuccess(string method, string url, string body = null) {
       string[] response = { "000", "" };
