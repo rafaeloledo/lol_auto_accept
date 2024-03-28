@@ -34,7 +34,10 @@ namespace lol_auto_accept.src {
     }
 
     public static void loadChampionsList() {
-      Console.Clear();
+      //for (int i = 0; i < champsSortered.Count; i++) {
+      //  Console.WriteLine(champsSortered[i].name);
+      //}
+      //Console.Clear();
 
       if (!champsSortered.Any()) {
         loadSummonerId();
@@ -46,7 +49,7 @@ namespace lol_auto_accept.src {
         string[] ownedChampions = LeagueClientUpdate
           .clientRequestUntilSuccess("GET", "lol-champions/v1/inventories/" + currentSummonerId + "/champions-minimal");
 
-        Console.Clear();
+        //Console.Clear();
 
         string[] champsJSONArray = ownedChampions[1].Split(new string[] { "},{" }, StringSplitOptions.None);
 
@@ -73,5 +76,6 @@ namespace lol_auto_accept.src {
         champsSortered = champs.OrderBy(x => x.name).ToList();
       }
     }
+
   }
 }
