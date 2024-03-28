@@ -22,7 +22,15 @@ namespace lol_auto_accept {
       }
 
       Console.Title = "LOL Auto Accept";
-      LeagueClientUpdate.isOpenTask();
+      Console.OutputEncoding = Encoding.UTF8;
+
+      var taskAcceptQueue = new Task(Accepter.acceptQueue);
+      taskAcceptQueue.Start();
+      var taskLeagueIsActive = new Task(LeagueClientUpdate.isOpenTask);
+      taskLeagueIsActive.Start();
+
+      var tasks = new[] { taskLeagueIsActive, taskAcceptQueue };
+      Task.WaitAll(tasks);
 
       Console.ReadKey();
     }
