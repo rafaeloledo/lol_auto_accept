@@ -7,6 +7,12 @@ using System.Threading;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
+/**
+*<summary>
+* Useful links of LCU docs
+* https://lcu.vivide.re/
+*</summary>
+*/
 namespace lol_auto_accept.src {
   internal class LeagueClientUpdate {
     private static string[] leagueAuth;
@@ -14,7 +20,7 @@ namespace lol_auto_accept.src {
     public static bool isLolOpen = false;
 
     public static void isOpenTask() {
-      //while (true) {
+      while (true) {
         Process client = Process.GetProcessesByName("LeagueClientUx").FirstOrDefault();
         if (client != null) {
           leagueAuth = getLeagueAuth(client);
@@ -27,7 +33,7 @@ namespace lol_auto_accept.src {
         }
         Thread.Sleep(2000);
         Data.loadChampionsList();
-      //}
+      }
     }
 
     public static bool isLeagueClientOpen() {
