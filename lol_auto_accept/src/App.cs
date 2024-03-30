@@ -10,19 +10,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace lol_auto_accept {
-  internal class Program {
+  internal class App {
     private static void Main(string[] args) {
-      var parentProcess = ParentProcessUtil.getParentProcess();
-      var isDebugMode = Debugger.IsAttached;
-
-      if (!isDebugMode && parentProcess.ProcessName != "conhost") {
-        Process.Start(new ProcessStartInfo {
-          FileName = "conhost",
-          WorkingDirectory = Directory.GetCurrentDirectory(),
-          Arguments = Process.GetCurrentProcess().MainModule.FileName,
-        });
-      }
-
       Console.Title = "LOL Auto Accept";
       Console.OutputEncoding = Encoding.UTF8;
 
@@ -33,8 +22,6 @@ namespace lol_auto_accept {
 
       var tasks = new[] { taskLeagueIsActive, taskAcceptQueue };
       Task.WaitAll(tasks);
-
-      Console.ReadKey();
     }
   }
 }
