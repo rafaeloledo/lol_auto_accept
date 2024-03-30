@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ namespace lol_auto_accept.src {
 
     private static bool pickedChamp = false;
     private static bool pickedBan = false;
+    private static string lastChatRoom = "";
 
     public static void acceptQueue() {
       while (true) {
@@ -26,10 +28,39 @@ namespace lol_auto_accept.src {
                 //Console.WriteLine("Lobby");
                 Thread.Sleep(5000);
                 break;
+              case "Matchmaking":
+                Thread.Sleep(2000);
+                break;
+              case "ReadyCheck":
+                LeagueClientUpdate.clientRequest("POST", "lol-matchmaking/v1/ready-check/accept");
+                break;
+              case "ChampSelect":
+                handleChampSelect();
+                handlePickOrderSwap();
+                break;
+              case "InProgress":
+                Thread.Sleep(9000);
+                break;
+              case "WaitingForStats":
+                Thread.Sleep(9000);
+                break;
+              case "PreEndOfGame":
+                Thread.Sleep(9000);
+                break;
+              case "EndOfGame":
+                Thread.Sleep(5000);
+                break;
+              default:
+                Thread.Sleep(1000);
+                break;
             }
 
+            if (phase != "ChampSelect") lastChatRoom = "";
+
           }
+          Thread.Sleep(50);
         }
+        Thread.Sleep(1000);
       }
     }
 
