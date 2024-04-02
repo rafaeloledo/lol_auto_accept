@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace lol_auto_accept.src {
@@ -34,10 +30,6 @@ namespace lol_auto_accept.src {
     }
 
     public static void loadChampionsList() {
-      //for (int i = 0; i < champsSortered.Count; i++) {
-      //  Console.WriteLine(champsSortered[i].name);
-      //}
-      //Console.Clear();
 
       if (!champsSortered.Any()) {
         loadSummonerId();

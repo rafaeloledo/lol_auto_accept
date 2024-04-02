@@ -27,12 +27,16 @@ namespace lol_auto_accept.src {
           isLolOpen = true;
           if (lcuPid != client.Id) {
             lcuPid = client.Id;
+            if (Data.champsSortered.Count == 0) {
+              Data.loadChampionsList();
+            }
           }
         } else {
           isLolOpen = false;
         }
         Thread.Sleep(2000);
-        Data.loadChampionsList();
+        if (UI.currentWindow != "menu")
+          UI.render();
       }
     }
 

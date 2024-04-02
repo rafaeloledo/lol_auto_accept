@@ -15,13 +15,16 @@ namespace lol_auto_accept.src {
     private static string lastChatRoom = "";
 
     public static void acceptQueue() {
+      Task.Delay(5000).Wait();
+      Console.WriteLine();
       while (true) {
         if (isAutoAcceptOn) {
           string[] gameSession = LeagueClientUpdate.clientRequest("GET", "lol-gameflow/v1/session");
 
           if (gameSession[0] == "200" || gameSession[0] == "OK") {
-            Console.WriteLine(gameSession[1]);
             string phase = gameSession[1].Split(new string[] { "phase" }, StringSplitOptions.None).Last().Split('"')[2];
+
+            Console.WriteLine("DEBUG: CURRENT PHASE = " + phase);
 
             switch (phase) {
               case "Lobby":
@@ -88,5 +91,8 @@ namespace lol_auto_accept.src {
     private static void checkLockDelay() { }
     private static void handlePickOrderSwap() { }
 
+    public static void toggle() {
+      isAutoAcceptOn = !isAutoAcceptOn;
+    }
   }
 }
