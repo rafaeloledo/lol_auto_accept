@@ -4,23 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Windows.Forms;
 
-/**
-*<summary>
-* Useful links of LCU docs
-* https://lcu.vivide.re/
-*</summary>
-*/
 namespace lol_auto_accept.src {
   internal class LeagueClientUpdate {
-    private static string[] leagueAuth;
+    public static string[] leagueAuth = { "", "" };
     private static int lcuPid = 0;
     public static bool isLolOpen = false;
 
-    public static void isOpenTask() {
+    public static async Task isOpenTask() {
       while (true) {
+        //Console.WriteLine("isOpenTask");
         Process client = Process.GetProcessesByName("LeagueClientUx").FirstOrDefault();
         if (client != null) {
           leagueAuth = getLeagueAuth(client);
@@ -33,10 +30,11 @@ namespace lol_auto_accept.src {
           }
         } else {
           isLolOpen = false;
+          Data.champsSortered.Clear();
+          Data.spellSortered.Clear();
+          Data.currentSummonerId = "";
         }
-        Thread.Sleep(2000);
-        if (UI.currentWindow != "menu")
-          UI.render();
+        await Task.Delay(1000);
       }
     }
 
@@ -89,7 +87,7 @@ namespace lol_auto_accept.src {
           if (response == null) return new string[] { "999", "" };
 
           string[] output = new string[] {
-            response.StatusCode.ToString(),
+            ((int)response.StatusCode).ToString(),
             response.Content.ReadAsStringAsync().Result
           };
 
@@ -102,18 +100,12 @@ namespace lol_auto_accept.src {
       }
     }
 
-    /**
-     * <summary>
-     * Returns an string[], first item is the response status, the second is the content
-     * </summary>
-     */
-
     public static string[] clientRequestUntilSuccess(string method, string url, string body = null) {
       string[] response = { "000", "" };
 
       while (response[0][0] != '2' && response[0] != "OK") {
         response = clientRequest(method, url, body);
-        if (isLeagueClientOpen()) Thread.Sleep(1000);
+        if (isLeagueClientOpen()) Task.Delay(1000);
       };
 
       return response;

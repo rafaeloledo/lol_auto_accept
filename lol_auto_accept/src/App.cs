@@ -11,17 +11,24 @@ using System.Threading.Tasks;
 
 namespace lol_auto_accept {
   internal class App {
-    private static void Main(string[] args) {
+
+#pragma warning disable
+    private static async Task Main(string[] args) {
       Console.Title = "LOL Auto Accept";
       Console.OutputEncoding = Encoding.UTF8;
 
-      var taskAcceptQueue = new Task(Accepter.acceptQueue);
-      taskAcceptQueue.Start();
-      var taskLeagueIsActive = new Task(LeagueClientUpdate.isOpenTask);
-      taskLeagueIsActive.Start();
+      var taskLeagueIsActive = Task.Run(async () => { await LeagueClientUpdate.isOpenTask(); });
+      var taskAcceptQueue = Task.Run(async () => { await Accepter.acceptQueue(); });
+      var taskUpdate = Task.Run(async () => {
+        await Task.Delay(1000);
+        UI.updateAsync(true);
+      });
 
-      var tasks = new[] { taskLeagueIsActive, taskAcceptQueue };
+      UI.render();
+
+      var tasks = new[] { taskLeagueIsActive, taskAcceptQueue, taskUpdate };
       Task.WaitAll(tasks);
     }
   }
+#pragma warning enable
 }

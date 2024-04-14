@@ -6,26 +6,63 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Http;
+using System.Runtime.InteropServices;
+using lol_auto_accept.util;
 
 namespace lol_auto_accept.src {
   internal class UI {
-    public static string currentWindow = "";
+    private static readonly int MAX_COLUMNS_LENGTH = 38;
+    private static readonly int MAX_ROWS_LENGTH = 17;
+    private static readonly int SYNC_POS = 20;
 
-    public static void render() {
+    public static string currentWindow = "starting";
+
+    public static async Task render() {
       Console.Clear();
-      Console.Write("==== League Auto Accepter ==== (ESC: globally reset UI)\n");
+      Console.Write("==== League Auto Accepter ==== \n");
       renderClientStatus();
       Menu();
-      handleReload();
+      handleUserInput();
+    }
+
+    public static async Task updateAsync(bool loop) {
+      while (true) {
+        if (currentWindow == "menu") {
+          // Wait for printing sync
+          await Task.Delay(250);
+          Console.CursorVisible = false;
+          Console.SetCursorPosition(0, SYNC_POS);
+          Console.ForegroundColor = ConsoleColor.DarkYellow;
+          Console.Write("Syncing...");
+          Console.ForegroundColor = ConsoleColor.White;
+          
+          // Update
+          //Console.CursorVisible = false;
+          renderClientStatus();
+          renderCurrentSettings();
+          
+          // Wait for remove syncing... mesage
+          await Task.Delay(1500);
+          Console.SetCursorPosition(0, SYNC_POS);
+          Console.Write("          ");
+
+          // Back to normal state waiting
+          Console.SetCursorPosition(24, 17);
+          Console.CursorVisible = true;
+          await Task.Delay(5000);
+        }
+        if (!loop) return; // ends the loop if desired
+      }
     }
 
     private static void renderClientStatus() {
+      Console.SetCursorPosition(0, 1);
       if (LeagueClientUpdate.isLolOpen) {
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("LOL IS OPEN");
+        Console.Write("LOL IS OPEN             ");
       } else {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("WARNING: OPEN THE CLIENT");
+        Console.Write("WARNING: OPEN THE CLIENT");
       }
       Console.ResetColor();
     }
@@ -33,79 +70,79 @@ namespace lol_auto_accept.src {
     private static void renderAutoAccepterStatus() {
       if (Accepter.isAutoAcceptOn) {
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("AUTO ACCEPT: ON");
+        Console.Write("AUTO ACCEPT: ON         ");
       } else {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("WARNING: AUTO ACCEPT OFF");
+        Console.Write("WARNING: AUTO ACCEPT OFF");
       }
       Console.ResetColor();
-
     }
 
     private static void renderInstalockPickStatus() {
       if (Settings.instalockPick) {
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("INSTALOCK PICK ON");
+        Console.Write("INSTALOCK PICK ON          ");
       } else {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("WARNING: INSTALOCK PICK OFF");
+        Console.Write("WARNING: INSTALOCK PICK OFF");
       }
       Console.ResetColor();
-
     }
 
     private static void renderInstalockBanStatus() {
       if (Settings.instalockBan) {
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("INSTALOCK BAN ON");
+        Console.Write("INSTALOCK BAN ON          ");
       } else {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("WARNING: INSTALOCK BAN OFF");
+        Console.Write("WARNING: INSTALOCK BAN OFF");
       }
       Console.ResetColor();
+    }
 
+    private static void renderCurrentSettings() {
+      Console.WriteLine();
+      Console.SetCursorPosition(0, 3);
+      Console.Write("-- Current Settings --");
+      Console.SetCursorPosition(0, 4);
+      Console.Write("Current auto selection champion..." + Settings.currentChamp[0]);
+      Console.SetCursorPosition(0, 5);
+      Console.Write("Current auto selection ban..." + Settings.currentBan[0]);
+      Console.SetCursorPosition(0, 6);
+      renderAutoAccepterStatus();
+      Console.SetCursorPosition(0, 7);
+      renderInstalockPickStatus();
+      Console.SetCursorPosition(0, 8);
+      renderInstalockBanStatus();
+      Console.WriteLine();
     }
 
     private static void Menu() {
-      if (currentWindow == "")
-        currentWindow = "menu";
-      Console.WriteLine("\n-- Current Settings --");
-      Console.WriteLine("Current auto selection champion..." + Settings.currentChamp[0]);
-      Console.WriteLine("Current auto selection ban..." + Settings.currentBan[0]);
-      renderAutoAccepterStatus();
-      renderInstalockPickStatus();
-      renderInstalockBanStatus();
+      currentWindow = "menu";
+      renderCurrentSettings();
       Console.WriteLine("\n-- Menu --");
+      Console.ForegroundColor = ConsoleColor.DarkCyan;
       Console.WriteLine("1 - Select Champion Pick");
       Console.WriteLine("2 - Select Champion Ban");
-      Console.WriteLine("3 - Toggle Auto Accepter");
+      Console.WriteLine("3 - Toggle Auto Accept");
       Console.WriteLine("4 - Toggle Instalock Pick");
       Console.WriteLine("5 - Toggle Instalock Ban");
-      handleUserInput();
-    }
-
-    private static void handleReload(string windowToReload = "none") {
-      if (windowToReload == "none") {
-        return;
-      }
+      Console.ForegroundColor = ConsoleColor.White;
     }
 
     private static void handleUserInput() {
       bool control = true;
-      Console.CursorVisible = true;
+      //Console.CursorVisible = true;
       Console.Write("\nChoose an option above: ");
       while (control) {
         ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 
         switch (keyInfo.Key) {
-          case ConsoleKey.Escape:
-            render();
-            break;
           case ConsoleKey.D1:
-            handleCurrentChampion();
+            Settings.currentChamp[0] = handleCurrentChampion();
             break;
           case ConsoleKey.D2:
-            handleCurrentBan();
+            Settings.currentBan[0] = handleCurrentChampion();
             break;
           case ConsoleKey.D3:
             handleToggle();
@@ -122,100 +159,108 @@ namespace lol_auto_accept.src {
       }
     }
 
-    public static void handleCurrentChampion() {
+    public static string handleCurrentChampion() {
+      currentWindow = "query";
       if (!LeagueClientUpdate.isLolOpen) {
         MessageBoxIcon icon = MessageBoxIcon.Error;
         MessageBox.Show("LEAGUE CLIENT IS NOT OPEN", "ERROR", MessageBoxButtons.OK, icon);
-        return;
+        return "";
       }
 
-      string query = "";
+      StringBuilder query = new StringBuilder("");
       string currentChamp = "";
-      render("Query champion (ENTER: confirm): ", true);
-      Console.CursorVisible = false;
+      int lastQueryLength = 0;
+      renderInput("Query champion (ENTER: confirm): ");
+      //Console.CursorVisible = false;
       Console.SetCursorPosition(33, 0);
 
       while (true) {
         ConsoleKeyInfo cki = Console.ReadKey(true);
 
         switch (cki.Key) {
+          case ConsoleKey.D1:
+          case ConsoleKey.D2:
+          case ConsoleKey.D3:
+          case ConsoleKey.D4:
+          case ConsoleKey.D5:
+          case ConsoleKey.D6:
+          case ConsoleKey.D7:
+          case ConsoleKey.D8:
+          case ConsoleKey.D9:
+            break;
+          case ConsoleKey.Backspace:
+            if (query.Length > 0) {
+              query.Length--;
+              renderInput($"Query champion (ENTER: confirm): {(query != null ? query.ToString().ToLower() : "")}");
+            }
+            break;
           case ConsoleKey.Escape:
-            render();
-            return;
+            if (currentWindow != "menu")
+              _ = render();
+            return "";
           case ConsoleKey.Enter:
-            Settings.currentChamp[0] = currentChamp;
-            render();
-            return;
+            _ = render();
+            return currentChamp;
           default:
-            query += cki.Key;
+            query.Append(cki.Key);
+            renderInput($"Query champion (ENTER: confirm): {(query != null ? query.ToString().ToLower() : "")}");
             Console.WriteLine();
-            render($"Query champion (ENTER: confirm): {(query != null ? query.ToString().ToLower() : "")}", true);
+
+            if (lastQueryLength > 0)
+              clearLastQueryOutput(lastQueryLength);
+
+            lastQueryLength = 0;
+
             for (int i = 0; i < Data.champsSortered.Count; i++) {
-              if (Data.champsSortered[i].name.IndexOf(query, StringComparison.CurrentCultureIgnoreCase) >= 0) {
+              if (Data.champsSortered[i].name.IndexOf(query.ToString(), StringComparison.CurrentCultureIgnoreCase) >= 0) {
                 string champ = Data.champsSortered[i].name;
                 Console.WriteLine(champ);
+                lastQueryLength++;
                 currentChamp = champ;
               }
             }
-            Console.SetCursorPosition(33, 0);
+
+            Console.SetCursorPosition(33 + query.Length, 0);
             break;
         }
       }
     }
 
-    private static void render(string text, bool clear) {
-      if (clear)
-        Console.Clear();
+    private static void clearLastQueryOutput(int lastQueryLength) {
+      for (int i = 1; i < lastQueryLength + 1; i++) {
+        Console.SetCursorPosition(0, i);
+        Console.Write("                  ");
+      }
+      Console.SetCursorPosition(0, 1);
+    }
 
-      Console.WriteLine(text);
+    private static void renderInput(string output) {
+      clearMenu();
+      Console.SetCursorPosition(0, 0);
+      Console.Write(output);
+    }
+
+    private static void clearMenu() {
+      for (int i = 0; i < MAX_ROWS_LENGTH + 1; i++) {
+        Console.SetCursorPosition(0, i);
+        for (int j = 0; j < MAX_COLUMNS_LENGTH; j++) {
+          Console.Write(" ");
+        }
+      }
     }
 
     private static void handleToggle() {
       Accepter.toggle();
-      render();
+      _ = updateAsync(false);
     }
     private static void handleToggleInstalockBan() {
       Settings.instalockBan = !Settings.instalockBan;
-      render();
+      _ = updateAsync(false);
     }
 
     private static void handleToggleInstalockPick() {
       Settings.instalockPick = !Settings.instalockPick;
-      render();
+      _ = updateAsync(false);
     }
-
-    private static void handleCurrentBan() {
-      string query = "";
-      string currentBan = "";
-
-      Console.Clear();
-      Console.Write("Query ban (ENTER: confirm): ");
-
-      while (true) {
-        ConsoleKeyInfo cki = Console.ReadKey();
-
-        switch (cki.Key) {
-          case ConsoleKey.Escape:
-            render();
-            return;
-          case ConsoleKey.Enter:
-            Settings.currentBan[0] = currentBan;
-            render();
-            return;
-          default:
-            query += cki.Key;
-            Console.WriteLine();
-            for (int i = 0; i < Data.champsSortered.Count; i++) {
-              if (Data.champsSortered[i].name.StartsWith(query, true, null)) {
-                string champ = Data.champsSortered[i].name;
-                Console.WriteLine(champ);
-                currentBan = champ;
-              }
-            }
-            break;
-        }
-      }
-    }
-
   }
 }

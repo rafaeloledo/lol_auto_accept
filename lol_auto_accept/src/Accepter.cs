@@ -1,6 +1,7 @@
 ﻿using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -14,25 +15,20 @@ namespace lol_auto_accept.src {
     private static bool pickedBan = false;
     private static string lastChatRoom = "";
 
-    public static void acceptQueue() {
-      Task.Delay(5000).Wait();
-      Console.WriteLine();
+    public static async Task acceptQueue() {
       while (true) {
-        if (isAutoAcceptOn) {
+        if (isAutoAcceptOn && LeagueClientUpdate.leagueAuth[0] != "") {
           string[] gameSession = LeagueClientUpdate.clientRequest("GET", "lol-gameflow/v1/session");
 
           if (gameSession[0] == "200" || gameSession[0] == "OK") {
             string phase = gameSession[1].Split(new string[] { "phase" }, StringSplitOptions.None).Last().Split('"')[2];
 
-            Console.WriteLine("DEBUG: CURRENT PHASE = " + phase);
-
             switch (phase) {
               case "Lobby":
-                //Console.WriteLine("Lobby");
-                Thread.Sleep(5000);
+                await Task.Delay(4000);
                 break;
               case "Matchmaking":
-                Thread.Sleep(2000);
+                await Task.Delay(1000);
                 break;
               case "ReadyCheck":
                 LeagueClientUpdate.clientRequest("POST", "lol-matchmaking/v1/ready-check/accept");
@@ -42,28 +38,26 @@ namespace lol_auto_accept.src {
                 handlePickOrderSwap();
                 break;
               case "InProgress":
-                Thread.Sleep(9000);
+                await Task.Delay(9000);
                 break;
               case "WaitingForStats":
-                Thread.Sleep(9000);
+                await Task.Delay(9000);
                 break;
               case "PreEndOfGame":
-                Thread.Sleep(9000);
+                await Task.Delay(9000);
                 break;
               case "EndOfGame":
-                Thread.Sleep(5000);
+                await Task.Delay(5000);
                 break;
               default:
-                Thread.Sleep(1000);
+                await Task.Delay(1000);
                 break;
             }
-
             if (phase != "ChampSelect") lastChatRoom = "";
-
           }
-          Thread.Sleep(50);
+          await Task.Delay(50);
         }
-        Thread.Sleep(1000);
+        await Task.Delay(800);
       }
     }
 
@@ -90,7 +84,6 @@ namespace lol_auto_accept.src {
     }
     private static void checkLockDelay() { }
     private static void handlePickOrderSwap() { }
-
     public static void toggle() {
       isAutoAcceptOn = !isAutoAcceptOn;
     }

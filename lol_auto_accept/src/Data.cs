@@ -20,13 +20,11 @@ namespace lol_auto_accept.src {
     public static void loadSummonerId() {
       string[] currentSummoner = LeagueClientUpdate.clientRequestUntilSuccess("GET", "lol-summoner/v1/current-summoner");
       currentSummonerId = Regex.Match(currentSummoner[1], @"(?<=""summonerId"":)\d+").Value;
-      // Console.WriteLine(currentSummoner[1]);
     }
 
     public static void loadChatId() {
       string[] myChatProfile = LeagueClientUpdate.clientRequest("GET", "lol-chat/v1/me");
       currentChatId = Regex.Match(myChatProfile[1], @"(?<=""id"":)""(.*?)""").Value.Replace("\"", "");
-      //Console.WriteLine(currentChatId);
     }
 
     public static void loadChampionsList() {
@@ -34,14 +32,10 @@ namespace lol_auto_accept.src {
       if (!champsSortered.Any()) {
         loadSummonerId();
 
-        Console.WriteLine("Fetching champions and ownership list");
-
         List<itemList> champs = new List<itemList>();
 
         string[] ownedChampions = LeagueClientUpdate
           .clientRequestUntilSuccess("GET", "lol-champions/v1/inventories/" + currentSummonerId + "/champions-minimal");
-
-        //Console.Clear();
 
         string[] champsJSONArray = ownedChampions[1].Split(new string[] { "},{" }, StringSplitOptions.None);
 
@@ -68,6 +62,5 @@ namespace lol_auto_accept.src {
         champsSortered = champs.OrderBy(x => x.name).ToList();
       }
     }
-
   }
 }
