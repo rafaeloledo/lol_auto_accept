@@ -23,7 +23,7 @@ Implement
 ## ✨ Requirements
 `mscoree.dll` - already shipped with Windows
 
-## 📦 Installtion
+## 📦 Installation
 
 Download `lol_auto_accept.exe` in the `Releases` section and run it.
 
