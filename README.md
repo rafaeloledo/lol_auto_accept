@@ -1,3 +1,5 @@
+## Win32 API cli-based League of Legends auto accepter
+
 > [!IMPORTANT]
 > This is currently a work in progress, expect things to be broken!
 
