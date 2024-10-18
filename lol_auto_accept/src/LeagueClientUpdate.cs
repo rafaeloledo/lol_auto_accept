@@ -45,8 +45,8 @@ namespace lol_auto_accept.src {
 
     private static string[] getLeagueAuth(Process client) {
       ProcessStartInfo psi = new ProcessStartInfo(
-        "cmd.exe",
-        "/c " + "wmic process where 'Processid=" + client.Id + "' get Commandline"
+        "powershell.exe",
+        "-Command \"Get-Process -Id " + client.Id + " | Select-Object -ExpandProperty CommandLine\""
       );
 
       psi.RedirectStandardOutput = true;
