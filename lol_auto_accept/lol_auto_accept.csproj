@@ -47,6 +47,8 @@
 		<Compile Include="src/*" />
 		<Compile Include="util/*" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+		<None Include="bin\Debug\**" Visible="false" />
+		<None Include="obj\**" Visible="false" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
