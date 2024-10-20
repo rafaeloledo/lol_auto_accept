@@ -8,10 +8,10 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace lol_auto_accept {
   internal class App {
-
 #pragma warning disable
     private static async Task Main(string[] args) {
       Console.Title = "LOL Auto Accept";

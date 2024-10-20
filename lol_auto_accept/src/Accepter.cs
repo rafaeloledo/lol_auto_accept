@@ -6,11 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using lol_auto_accept.util;
 
 namespace lol_auto_accept.src {
   internal class Accepter {
     public static bool isAutoAcceptOn = true;
-
+		public static LogForm logForm = new LogForm();
     private static bool pickedChamp = false;
     private static bool pickedBan = false;
     private static string lastChatRoom = "";
